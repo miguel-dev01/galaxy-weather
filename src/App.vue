@@ -1,5 +1,4 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
   <GalaxyWeather />
 </template>
 
@@ -9,14 +8,14 @@
   export default {
     name: 'App',
     components: {
-      GalaxyWeather
+      GalaxyWeather 
     }
   }
 </script>
 
 <style>
   #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;

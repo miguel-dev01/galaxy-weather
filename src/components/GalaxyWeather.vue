@@ -1,74 +1,162 @@
-<!-- src/components/Weather.vue -->
 <template>
-    <div class="weather-container">
-      <h2>Datos Meteorológicos</h2>
-      <div v-if="weather">
-        <p><strong>Localidad:</strong> {{ weather.name }}</p>
-        <p><strong>Estado Meteorológico:</strong> {{ weather.weather[0].description }}</p>
-        <p><strong>Temperatura Actual:</strong> {{ weather.main.temp }}°C</p>
-        <p><strong>Temperatura Máxima:</strong> {{ weather.main.temp_max }}°C</p>
-        <p><strong>Temperatura Mínima:</strong> {{ weather.main.temp_min }}°C</p>
-        <p><strong>Presión Atmosférica:</strong> {{ weather.main.pressure }} hPa</p>
-        <p><strong>Humedad Relativa:</strong> {{ weather.main.humidity }}%</p>
-        <p><strong>Visibilidad:</strong> {{ visibility }} metros</p>
-        <p><strong>Información del Viento:</strong> {{ weather.wind.speed }} m/s, {{ windDirection }}°</p>
-      </div>
-      <div v-else>
-        <p>Cargando...</p>
-      </div>
+  <div class="weather-container">
+    <h2>Datos Meteorológicos</h2>
+
+    <!-- Campo de entrada para la localidad -->
+    <div class="location-input">
+      <input v-model="city" type="text" placeholder="Ingrese una localidad" @keyup.enter="fetchWeather" />
+      <button @click="fetchWeather">Consultar</button>
     </div>
+    <br>
+    <h2>Historial de consultas</h2>
+    <ul>
+      <li v-for="city in getCitiesFromLocalStorage()" :key="city">{{ city }}</li>
+    </ul>
+    <br>
+
+    <!-- Si weather tiene valor se muestran los valores, sino v-else... -->
+    <div v-if="weather">
+      <img :src="iconUrl" :alt="weather.weather[0].description" class="weather-icon">
+      <p><strong>Localidad:</strong> {{ weather.name }}</p>
+      <p><strong>Estado meteorológico:</strong> {{ weather.weather[0].description }}</p>
+      <p><strong>Temperatura actual:</strong> {{ weather.main.temp }}°C</p>
+      <p><strong>Temperatura máxima:</strong> {{ weather.main.temp_max }}°C</p>
+      <p><strong>Temperatura mínima:</strong> {{ weather.main.temp_min }}°C</p>
+      <p><strong>Presión atmosférica:</strong> {{ weather.main.pressure }} hPa</p>
+      <p><strong>Humedad relativa:</strong> {{ weather.main.humidity }}%</p>
+      <p><strong>Visibilidad:</strong> {{ visibility }} metros</p>
+      <p><strong>Información del viento:</strong> {{ weather.wind.speed }} m/s, {{ windDirection }}°</p>
+    </div>
+    <div v-else>
+      <p>Aún no hay datos cargados</p>
+    </div>
+  </div>
 </template>
-  
+
 <script>
-  import axios from 'axios';
-  
-  export default {
-    data() {
-      return {
-        weather: null,
-        visibility: null,
-        windDirection: null,
-        city: 'London',
-        apiKey: process.env.OPENWEATHERMAP_API_KEY,
-      };
-    },
-    mounted() {
-      this.fetchWeather();
-    },
-    methods: {
-      fetchWeather() {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&appid=${this.apiKey}`;
-        axios.get(url)
-          .then(response => {
-            this.weather = response.data;
-            this.visibility = response.data.visibility; 
-            this.windDirection = response.data.wind.deg;
-          })
-          .catch(error => {
-            console.error('Error al obtener los datos del clima', error);
-          });
+import axios from 'axios';
+
+const STORAGE_KEY = 'cities';
+
+export default {
+  data() {
+    return {
+      weather: null,
+      visibility: null,
+      windDirection: null,
+      city: null,
+      apiKey: '093896d914c405d7d9a795a1fc0b2984'
+    };
+  },
+  computed: {
+    iconUrl() {
+      if (this.weather) {
+        const iconCode = this.weather.weather[0].icon;
+        return `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
       }
+      return '';
+    },
+  },
+  methods: {
+    fetchWeather() {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&units=metric&appid=${this.apiKey}`;
+      axios.get(url)
+        .then(response => {
+          this.weather = response.data;
+          this.visibility = response.data.visibility;
+          this.windDirection = response.data.wind.deg;
+          this.saveCityToLocalStorage(this.city);
+        })
+        .catch(error => {
+          console.error('Error al obtener los datos del clima', error);
+        });
+    },
+    saveCityToLocalStorage(city) {
+      let cities = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      if (!cities.includes(city)) {
+        cities.push(city);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cities));
+      }
+    },
+    getCitiesFromLocalStorage() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     }
-  };
+  }
+};
 </script>
-  
+
 <style scoped>
   .weather-container {
     background-color: #f0f0f0;
     border-radius: 10px;
     padding: 20px;
-    width: 300px;
-    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    max-width: 100%;
+    width: 90%;
+    margin: 0 auto;
     text-align: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   }
-  
-  h2 {
+
+  .location-input {
+    display: flex;
+    justify-content: center;
     margin-bottom: 20px;
   }
-  
+
+  .location-input input {
+    padding: 10px;
+    font-size: 16px;
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+
+  .location-input button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .weather-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+
   p {
     margin: 5px 0;
-    font-size: 16px;
+    font-size: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .weather-container {
+      width: 400px;
+    }
+
+    .weather-icon {
+      width: 100px;
+      height: 100px;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+    }
   }
 </style>
-  
