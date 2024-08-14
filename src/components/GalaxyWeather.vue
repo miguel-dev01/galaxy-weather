@@ -29,7 +29,7 @@
         visibility: null,
         windDirection: null,
         city: 'London',
-        apiKey: '093896d914c405d7d9a795a1fc0b2984',
+        apiKey: process.env.OPENWEATHERMAP_API_KEY,
       };
     },
     mounted() {
