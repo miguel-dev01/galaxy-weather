@@ -1,4 +1,5 @@
 <template>
+  <h1>Galaxy Weather App</h1>
   <div class="weather-container">
     <div class="weather-data">
       <h2>Datos Meteorológicos</h2>
@@ -30,9 +31,10 @@
 
     <div class="weather-history">
       <h2>Historial de consultas</h2>
-        <li v-for="city in getCitiesFromLocalStorage()" :key="city" @click="selectedCity(city)">
-          {{ city }}
-        </li>
+        <p v-for="city in getCitiesFromLocalStorage()" :key="city" @click="selectedCity(city)">
+          <a href="#">{{ city }}</a>
+        </p>
+      <button @click="clearHistory" >Limpiar historial</button>
     </div>
   </div>
 </template>
@@ -69,6 +71,7 @@ export default {
           this.weather = response.data;
           this.visibility = response.data.visibility;
           this.windDirection = response.data.wind.deg;
+          
           this.saveCityToLocalStorage(this.city);
         })
         .catch(error => {
@@ -86,114 +89,140 @@ export default {
     getCitiesFromLocalStorage() {
       return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
     },
+    // Metodo para seleccionar una ciudad del historial
     selectedCity(city) {
       this.city = city;
       this.fetchWeather();
+    },
+    // Limpiar el historial de consultas
+    clearHistory() {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload(); // Recargamos la página para que se actualice el historial
     }
   }
 };
 </script>
 
-<style scoped>
-  .weather-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 20px;
-    flex-wrap: wrap;
-  }
+<style>
 
-  .weather-data, .weather-history {
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 20px;
-    width: 100%;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
+body {
+  margin: 0;
+  padding: 0;
+  background: url('../assets/white-clouds-blue-sky.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
 
-  .weather-data {
-    flex: 2;
-  }
+.weather-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  flex-wrap: wrap;
+}
 
-  .weather-history {
-    flex: 1;
-  }
+.weather-data, .weather-history {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
 
-  .location-input {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
+.weather-data {
+  flex: 2;
+}
 
-  .location-input input {
-    padding: 10px;
-    font-size: 16px;
-    flex: 1;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-right: 10px;
-  }
+.weather-history {
+  flex: 1;
+}
 
-  .location-input button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+.location-input {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
-  .location-input button:hover {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #003d7e;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+.location-input input {
+  padding: 10px;
+  font-size: 16px;
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
 
-  .weather-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 15px;
-  }
+.location-input button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 
-  h2 {
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-  }
+.location-input button:hover {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #003d7e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 
-  p {
-    margin: 5px 0;
-    font-size: 1rem;
-  }
+.weather-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 15px;
+}
 
-  @media (min-width: 768px) {
-    .weather-data, .weather-history {
-      width: 400px;
-    }
+h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
 
-    .weather-icon {
-      width: 100px;
-      height: 100px;
-    }
+p {
+  margin: 5px 0;
+  font-size: 1rem;
+}
 
-    h2 {
-      font-size: 2rem;
-    }
+.weather-history a {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-    p {
-      font-size: 1.2rem;
-    }
-  }
+.weather-history a:hover {
+  color: #0056b3;
+}
+
+.weather-history button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.weather-history button:hover {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #c82333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 </style>
