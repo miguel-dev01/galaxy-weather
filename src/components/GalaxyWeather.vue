@@ -1,34 +1,38 @@
 <template>
   <div class="weather-container">
-    <h2>Datos Meteorológicos</h2>
+    <div class="weather-data">
+      <h2>Datos Meteorológicos</h2>
 
-    <!-- Campo de entrada para la localidad -->
-    <div class="location-input">
-      <input v-model="city" type="text" placeholder="Ingrese una localidad" @keyup.enter="fetchWeather" />
-      <button @click="fetchWeather">Consultar</button>
-    </div>
-    <br>
-    <h2>Historial de consultas</h2>
-    <ul>
-      <li v-for="city in getCitiesFromLocalStorage()" :key="city">{{ city }}</li>
-    </ul>
-    <br>
+      <!-- Campo de entrada para la localidad -->
+      <div class="location-input">
+        <input v-model="city" type="text" placeholder="Ingrese una localidad" @keyup.enter="fetchWeather" />
+        <button @click="fetchWeather">Consultar</button>
+      </div>
+      <br>
 
-    <!-- Si weather tiene valor se muestran los valores, sino v-else... -->
-    <div v-if="weather">
-      <img :src="iconUrl" :alt="weather.weather[0].description" class="weather-icon">
-      <p><strong>Localidad:</strong> {{ weather.name }}</p>
-      <p><strong>Estado meteorológico:</strong> {{ weather.weather[0].description }}</p>
-      <p><strong>Temperatura actual:</strong> {{ weather.main.temp }}°C</p>
-      <p><strong>Temperatura máxima:</strong> {{ weather.main.temp_max }}°C</p>
-      <p><strong>Temperatura mínima:</strong> {{ weather.main.temp_min }}°C</p>
-      <p><strong>Presión atmosférica:</strong> {{ weather.main.pressure }} hPa</p>
-      <p><strong>Humedad relativa:</strong> {{ weather.main.humidity }}%</p>
-      <p><strong>Visibilidad:</strong> {{ visibility }} metros</p>
-      <p><strong>Información del viento:</strong> {{ weather.wind.speed }} m/s, {{ windDirection }}°</p>
+      <!-- Si weather tiene valor se muestran los valores, sino v-else... -->
+      <div v-if="weather">
+        <img :src="iconUrl" :alt="weather.weather[0].description" class="weather-icon">
+        <p><strong>Localidad:</strong> {{ weather.name }}</p>
+        <p><strong>Estado meteorológico:</strong> {{ weather.weather[0].description }}</p>
+        <p><strong>Temperatura actual:</strong> {{ weather.main.temp }}°C</p>
+        <p><strong>Temperatura máxima:</strong> {{ weather.main.temp_max }}°C</p>
+        <p><strong>Temperatura mínima:</strong> {{ weather.main.temp_min }}°C</p>
+        <p><strong>Presión atmosférica:</strong> {{ weather.main.pressure }} hPa</p>
+        <p><strong>Humedad relativa:</strong> {{ weather.main.humidity }}%</p>
+        <p><strong>Visibilidad:</strong> {{ visibility }} metros</p>
+        <p><strong>Información del viento:</strong> {{ weather.wind.speed }} m/s, {{ windDirection }}°</p>
+      </div>
+      <div v-else>
+        <p>Aún no hay datos cargados</p>
+      </div>
     </div>
-    <div v-else>
-      <p>Aún no hay datos cargados</p>
+
+    <div class="weather-history">
+      <h2>Historial de consultas</h2>
+        <li v-for="city in getCitiesFromLocalStorage()" :key="city" @click="selectedCity(city)">
+          {{ city }}
+        </li>
     </div>
   </div>
 </template>
@@ -72,6 +76,7 @@ export default {
         });
     },
     saveCityToLocalStorage(city) {
+      // Si no hay ciudades guardadas en localStorage, se crea un array vacío
       let cities = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
       if (!cities.includes(city)) {
         cities.push(city);
@@ -80,6 +85,10 @@ export default {
     },
     getCitiesFromLocalStorage() {
       return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    },
+    selectedCity(city) {
+      this.city = city;
+      this.fetchWeather();
     }
   }
 };
@@ -87,14 +96,31 @@ export default {
 
 <style scoped>
   .weather-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+
+  .weather-data, .weather-history {
     background-color: #f0f0f0;
     border-radius: 10px;
     padding: 20px;
-    max-width: 100%;
-    width: 90%;
-    margin: 0 auto;
-    text-align: center;
+    width: 100%;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .weather-data {
+    flex: 2;
+  }
+
+  .weather-history {
+    flex: 1;
   }
 
   .location-input {
@@ -123,6 +149,17 @@ export default {
     flex-shrink: 0;
   }
 
+  .location-input button:hover {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #003d7e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
   .weather-icon {
     width: 80px;
     height: 80px;
@@ -142,7 +179,7 @@ export default {
   }
 
   @media (min-width: 768px) {
-    .weather-container {
+    .weather-data, .weather-history {
       width: 400px;
     }
 
