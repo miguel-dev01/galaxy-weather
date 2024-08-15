@@ -11,3 +11,16 @@
 - Se deja establecida la API-KEY de OpenWeatherMap para que sea más fácil la comprobación a
     la hora de ejecutar la app. La API-KEY usada es gratuita.
     Aunque la forma correcta nunca es exponer esas APIs hardcodeadas en el código, si no usar variables de entorno, o en este caso, hacer uso del fichero .env y que este último no se suba al repositorio instanciandolo en .gitignore
+
+# Fuentes consultadas OpenWeatherMap
+- Para las imagenes de los estados de tiempo:
+https://openweathermap.org/weather-conditions
+
+- Precios APIs:
+https://openweathermap.org/price
+
+- Documentación API:
+https://openweathermap.org/current
+
+
+
